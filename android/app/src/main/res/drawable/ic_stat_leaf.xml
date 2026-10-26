@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Meldingsicoon: wit blad met nerf (Android kleurt het zelf) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd"
+        android:pathData="M4,21C4,11.5 10,4 21,3C21,13.5 14.2,21 4,21ZM6.2,19.2C9.8,15.6 13.3,11.4 17.2,7.2L16.4,6.4C12.4,10.6 8.9,14.6 5.4,18.4Z"/>
+</vector>

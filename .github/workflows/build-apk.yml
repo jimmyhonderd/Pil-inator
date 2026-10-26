@@ -1,0 +1,65 @@
+name: APK bouwen
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-apk
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Afhankelijkheden installeren
+        run: npm ci
+
+      - name: Schema-logica testen
+        run: TZ=Europe/Amsterdam node tests/schedule.test.js
+
+      - name: Web-bestanden naar Android kopiëren
+        run: npx cap sync android
+
+      - name: Ondertekende APK bouwen
+        if: env.KEYSTORE_PASSWORD != ''
+        working-directory: android
+        run: ./gradlew --no-daemon assembleRelease
+
+      - name: Test-APK bouwen (nog geen sleutel-wachtwoord ingesteld)
+        if: env.KEYSTORE_PASSWORD == ''
+        working-directory: android
+        run: |
+          echo "::warning::Het secret KEYSTORE_PASSWORD ontbreekt; er wordt alleen een test-build gemaakt, geen release."
+          ./gradlew --no-daemon assembleDebug
+
+      - name: Release publiceren
+        if: env.KEYSTORE_PASSWORD != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk pil-inator.apk
+          TAG="v1.0.${VERSION_CODE}"
+          gh release create "$TAG" pil-inator.apk \
+            --title "Pil-inator 1.0.${VERSION_CODE}" \
+            --notes "Automatisch gebouwd vanaf ${GITHUB_SHA::7}. Download pil-inator.apk op je telefoon en installeer hem; een nieuwe versie installeert gewoon over de vorige heen." \
+            --latest

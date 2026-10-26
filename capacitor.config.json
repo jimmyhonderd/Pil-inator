@@ -1,0 +1,14 @@
+{
+  "appId": "nl.jimmyhonderd.pilinator",
+  "appName": "Pil-inator",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#F3EEE2"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_leaf",
+      "iconColor": "#4E6B45"
+    }
+  }
+}
